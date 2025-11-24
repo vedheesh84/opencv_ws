@@ -1,42 +1,32 @@
 #!/usr/bin/env python3
 """
-Haar Cascade Object Detection Script for Ubuntu 22.04
-Uses Picamera2 for camera access
+Haar Cascade Object Detection using OpenCV VideoCapture
+Works on Ubuntu 22.04 without picamera dependencies
 """
 
 import cv2
 import numpy as np
 import time
 import os
-from picamera2 import Picamera2
 import config
 
 class ObjectDetector:
     def __init__(self, cascade_type='face'):
-        """
-        Initialize object detector with specified cascade type
-        cascade_type: 'face', 'eye', 'fullbody', or 'upperbody'
-        """
+        """Initialize object detector"""
         self.cascade_type = cascade_type
         self.cascade_path = config.HAAR_CASCADE_PATHS.get(cascade_type)
 
         if not self.cascade_path or not os.path.exists(self.cascade_path):
             print(f"Warning: Cascade file not found at {self.cascade_path}")
-            print("Trying alternative path...")
-            # Try alternative OpenCV installation path
             alt_path = f"/usr/local/share/opencv4/haarcascades/haarcascade_{cascade_type}.xml"
             if cascade_type == 'face':
                 alt_path = "/usr/local/share/opencv4/haarcascades/haarcascade_frontalface_default.xml"
 
             if os.path.exists(alt_path):
                 self.cascade_path = alt_path
-                print(f"Using alternative path: {alt_path}")
             else:
-                print("ERROR: Could not find Haar cascade file")
-                print("Please install opencv-data: sudo apt-get install opencv-data")
-                raise FileNotFoundError(f"Cascade file not found: {self.cascade_path}")
+                raise FileNotFoundError(f"Cascade file not found. Install: sudo apt install opencv-data")
 
-        # Load cascade classifier
         self.cascade = cv2.CascadeClassifier(self.cascade_path)
 
         if self.cascade.empty():
@@ -45,17 +35,10 @@ class ObjectDetector:
         print(f"Loaded {cascade_type} cascade successfully")
 
     def detect_objects(self, frame):
-        """
-        Detect objects in the frame
-        Returns: list of detected objects with their bounding boxes
-        """
-        # Convert to grayscale (Haar cascades work on grayscale images)
+        """Detect objects in frame"""
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-        # Apply histogram equalization for better detection
         gray = cv2.equalizeHist(gray)
 
-        # Detect objects
         objects = self.cascade.detectMultiScale(
             gray,
             scaleFactor=config.SCALE_FACTOR,
@@ -76,32 +59,24 @@ class ObjectDetector:
         return detected_objects
 
     def draw_detections(self, frame, detections):
-        """Draw bounding boxes and labels for detected objects"""
+        """Draw bounding boxes"""
         for detection in detections:
             obj_type = detection['type']
             x, y, w, h = detection['bbox']
             center_x, center_y = detection['center']
 
-            # Draw bounding rectangle
             cv2.rectangle(frame, (x, y), (x + w, y + h),
                          config.BOX_COLOR_OBJECT, 2)
-
-            # Draw center point
             cv2.circle(frame, (center_x, center_y), 5,
                       config.BOX_COLOR_OBJECT, -1)
 
-            # Prepare label
             label = f"{obj_type.upper()} [{w}x{h}]"
-
-            # Draw label background
             label_size = cv2.getTextSize(label, config.FONT,
                                         config.FONT_SCALE,
                                         config.FONT_THICKNESS)[0]
             cv2.rectangle(frame, (x, y - label_size[1] - 10),
                          (x + label_size[0], y),
                          config.BOX_COLOR_OBJECT, -1)
-
-            # Draw label text
             cv2.putText(frame, label, (x, y - 5),
                        config.FONT, config.FONT_SCALE, (255, 255, 255),
                        config.FONT_THICKNESS)
@@ -109,7 +84,7 @@ class ObjectDetector:
         return frame
 
 class MultiObjectDetector:
-    """Detector that can use multiple cascades simultaneously"""
+    """Multiple cascade detectors"""
     def __init__(self, cascade_types=['face', 'eye']):
         """Initialize multiple detectors"""
         self.detectors = {}
@@ -123,7 +98,7 @@ class MultiObjectDetector:
             raise ValueError("No detectors could be loaded")
 
     def detect_all(self, frame):
-        """Run all detectors on the frame"""
+        """Run all detectors"""
         all_detections = []
         for detector in self.detectors.values():
             detections = detector.detect_objects(frame)
@@ -133,46 +108,35 @@ class MultiObjectDetector:
     def draw_detections(self, frame, detections):
         """Draw all detections"""
         if self.detectors:
-            # Use first detector's draw method
             detector = list(self.detectors.values())[0]
             return detector.draw_detections(frame, detections)
         return frame
 
 def main():
-    """Main function to run object detection"""
+    """Main function"""
     print("Initializing Object Detection System...")
     print(f"Resolution: {config.CAMERA_RESOLUTION}")
 
-    # Initialize Picamera2
-    picam2 = Picamera2()
+    # Initialize camera
+    cap = cv2.VideoCapture(config.CAMERA_INDEX)
 
-    # Create camera configuration
-    camera_config = picam2.create_preview_configuration(
-        main={"size": config.CAMERA_RESOLUTION, "format": "RGB888"}
-    )
+    if not cap.isOpened():
+        print("ERROR: Could not open camera!")
+        return
 
-    # Configure camera
-    picam2.configure(camera_config)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, config.CAMERA_RESOLUTION[0])
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, config.CAMERA_RESOLUTION[1])
+    cap.set(cv2.CAP_PROP_FPS, config.CAMERA_FPS)
 
-    if config.CAMERA_ROTATION != 0:
-        picam2.set_controls({"Transform": config.CAMERA_ROTATION})
-
-    # Initialize multi-object detector (face and eye detection)
+    # Initialize detector
     try:
         detector = MultiObjectDetector(cascade_types=['face', 'eye'])
     except ValueError as e:
-        print(f"Error initializing detectors: {e}")
+        print(f"Error: {e}")
+        cap.release()
         return
 
-    # Start camera
-    print("Starting camera...")
-    picam2.start()
-
-    # Allow camera to warm up
-    print("Warming up camera for 2 seconds...")
-    time.sleep(2)
-
-    print("\nObject detection started!")
+    print("Camera ready!")
     print("Press 'q' to quit")
 
     frame_count = 0
@@ -180,36 +144,33 @@ def main():
 
     try:
         while True:
-            # Capture frame
-            frame = picam2.capture_array()
+            ret, frame = cap.read()
 
-            # Convert RGB to BGR for OpenCV
-            image = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+            if not ret:
+                print("ERROR: Failed to capture frame")
+                break
 
             # Detect objects
-            detections = detector.detect_all(image)
+            detections = detector.detect_all(frame)
 
             # Draw detections
-            image = detector.draw_detections(image, detections)
+            frame = detector.draw_detections(frame, detections)
 
-            # Calculate and display FPS
+            # Calculate FPS
             frame_count += 1
             elapsed = time.time() - start_time
             fps = frame_count / elapsed if elapsed > 0 else 0
 
-            cv2.putText(image, f"FPS: {fps:.1f}", (10, 30),
+            cv2.putText(frame, f"FPS: {fps:.1f}", (10, 30),
                        config.FONT, config.FONT_SCALE, (255, 255, 255),
                        config.FONT_THICKNESS)
 
-            # Display detection count
-            cv2.putText(image, f"Detected: {len(detections)}", (10, 60),
+            cv2.putText(frame, f"Detected: {len(detections)}", (10, 60),
                        config.FONT, config.FONT_SCALE, (255, 255, 255),
                        config.FONT_THICKNESS)
 
-            # Display frame
-            cv2.imshow("Object Detection - Picamera2", image)
+            cv2.imshow("Object Detection", frame)
 
-            # Handle keyboard input
             key = cv2.waitKey(1) & 0xFF
             if key == ord('q'):
                 print("\nQuitting...")
@@ -218,17 +179,13 @@ def main():
     except KeyboardInterrupt:
         print("\nInterrupted by user")
 
-    except Exception as e:
-        print(f"\nError: {e}")
-
     finally:
-        # Cleanup
-        picam2.stop()
+        cap.release()
         cv2.destroyAllWindows()
         print("Object detection stopped")
 
 if __name__ == "__main__":
     print("="*50)
-    print("Haar Cascade Object Detection (Picamera2/Ubuntu)")
+    print("Haar Cascade Object Detection (OpenCV)")
     print("="*50)
     main()

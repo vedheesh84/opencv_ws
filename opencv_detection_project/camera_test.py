@@ -1,41 +1,46 @@
 #!/usr/bin/env python3
 """
-Camera Test Script for Raspberry Pi Camera Rev 1.3 on Ubuntu 22.04
-Uses Picamera2 (libcamera-based) instead of legacy picamera
+Camera Test Script using OpenCV VideoCapture (V4L2)
+Works on Ubuntu 22.04 without picamera/picamera2
 """
 
 import cv2
 import numpy as np
 import time
-from picamera2 import Picamera2
-import config
+
+# Configuration
+CAMERA_RESOLUTION = (640, 480)
+CAMERA_INDEX = 0  # Usually 0 for /dev/video0
 
 def test_camera():
-    """Test camera capture and display"""
-    print("Initializing Raspberry Pi Camera Rev 1.3 with Picamera2...")
-    print(f"Resolution: {config.CAMERA_RESOLUTION}")
-    print(f"Format: {config.CAMERA_CONFIG['format']}")
+    """Test camera capture using OpenCV VideoCapture"""
+    print("Initializing camera with OpenCV VideoCapture...")
+    print(f"Resolution: {CAMERA_RESOLUTION}")
+    print(f"Camera index: {CAMERA_INDEX}")
 
-    # Initialize Picamera2
-    picam2 = Picamera2()
+    # Initialize camera
+    cap = cv2.VideoCapture(CAMERA_INDEX)
 
-    # Create camera configuration
-    camera_config = picam2.create_preview_configuration(
-        main={"size": config.CAMERA_RESOLUTION, "format": "RGB888"}
-    )
+    if not cap.isOpened():
+        print("ERROR: Could not open camera!")
+        print("\nTroubleshooting:")
+        print("1. Check camera connection")
+        print("2. Check available video devices:")
+        print("   ls /dev/video*")
+        print("3. Try different camera index (0, 1, 2...)")
+        return
 
-    # Configure camera
-    picam2.configure(camera_config)
+    # Set camera properties
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_RESOLUTION[0])
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_RESOLUTION[1])
+    cap.set(cv2.CAP_PROP_FPS, 30)
 
-    # Apply rotation if needed
-    if config.CAMERA_ROTATION != 0:
-        picam2.set_controls({"Transform": config.CAMERA_ROTATION})
+    # Get actual resolution
+    actual_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    actual_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    print(f"Actual resolution: {actual_width}x{actual_height}")
 
-    # Start camera
-    print("Starting camera...")
-    picam2.start()
-
-    # Allow camera to warm up
+    # Warm up camera
     print("Warming up camera for 2 seconds...")
     time.sleep(2)
 
@@ -48,11 +53,12 @@ def test_camera():
 
     try:
         while True:
-            # Capture frame
-            frame = picam2.capture_array()
+            # Read frame
+            ret, frame = cap.read()
 
-            # Convert RGB to BGR for OpenCV
-            frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+            if not ret:
+                print("ERROR: Failed to capture frame")
+                break
 
             # Calculate FPS
             frame_count += 1
@@ -60,15 +66,15 @@ def test_camera():
             fps = frame_count / elapsed if elapsed > 0 else 0
 
             # Display FPS on frame
-            cv2.putText(frame_bgr, f"FPS: {fps:.1f}", (10, 30),
+            cv2.putText(frame, f"FPS: {fps:.1f}", (10, 30),
                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
             # Add instructions
-            cv2.putText(frame_bgr, "Press 'q' to quit, 's' to save", (10, 460),
+            cv2.putText(frame, "Press 'q' to quit, 's' to save", (10, 460),
                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 
             # Display frame
-            cv2.imshow("Camera Test - Picamera2", frame_bgr)
+            cv2.imshow("Camera Test - OpenCV", frame)
 
             # Handle keyboard input
             key = cv2.waitKey(1) & 0xFF
@@ -78,7 +84,7 @@ def test_camera():
                 break
             elif key == ord('s'):
                 filename = f"snapshot_{int(time.time())}.jpg"
-                cv2.imwrite(filename, frame_bgr)
+                cv2.imwrite(filename, frame)
                 print(f"Snapshot saved: {filename}")
 
             # Print FPS every 30 frames
@@ -93,12 +99,12 @@ def test_camera():
 
     finally:
         # Cleanup
-        picam2.stop()
+        cap.release()
         cv2.destroyAllWindows()
         print("Camera closed successfully")
 
 if __name__ == "__main__":
     print("="*50)
-    print("Raspberry Pi Camera Test (Picamera2/Ubuntu)")
+    print("Raspberry Pi Camera Test (OpenCV/V4L2)")
     print("="*50)
     test_camera()
