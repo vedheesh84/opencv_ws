@@ -19,7 +19,7 @@ def test_camera():
     print(f"Camera index: {CAMERA_INDEX}")
 
     # Initialize camera
-    cap = cv2.VideoCapture(CAMERA_INDEX)
+    cap = cv2.VideoCapture(CAMERA_INDEX, cv2.CAP_V4L2)
 
     if not cap.isOpened():
         print("ERROR: Could not open camera!")

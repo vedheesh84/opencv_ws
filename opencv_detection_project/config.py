@@ -6,7 +6,7 @@ Using standard OpenCV VideoCapture (works on any Linux system)
 # Camera Settings
 CAMERA_INDEX = 0  # Usually 0 for /dev/video0, try 1, 2... if not working
 CAMERA_RESOLUTION = (640, 480)  # (width, height)
-CAMERA_FPS = 30
+CAMERA_FPS = 10
 CAMERA_ROTATION = 0  # Not used with VideoCapture, rotate manually if needed
 
 # Haar Cascade Settings
