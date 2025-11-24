@@ -1,13 +1,19 @@
 """
 Configuration file for OpenCV object detection and color identification
-Optimized for Raspberry Pi 4 Model B with Camera Rev 1.3
+Optimized for Raspberry Pi 4 Model B with Camera Rev 1.3 on Ubuntu 22.04
+Using Picamera2 (libcamera-based)
 """
 
-# Camera Settings
-CAMERA_RESOLUTION = (640, 480)  # Lower resolution for better performance on Pi
+# Camera Settings for Picamera2
+CAMERA_RESOLUTION = (640, 480)  # (width, height)
 CAMERA_FRAMERATE = 30
-CAMERA_ROTATION = 0  # Set to 180 if camera is upside down
-CAMERA_WARMUP_TIME = 2  # Seconds to let camera adjust
+CAMERA_ROTATION = 0  # 0, 90, 180, or 270 degrees
+
+# Picamera2 Configuration
+CAMERA_CONFIG = {
+    "size": CAMERA_RESOLUTION,
+    "format": "RGB888"  # or "BGR888" for direct OpenCV compatibility
+}
 
 # Haar Cascade Settings
 HAAR_CASCADE_PATHS = {
@@ -59,7 +65,3 @@ BOX_COLOR_ORANGE = (0, 165, 255)
 BOX_COLOR_PURPLE = (255, 0, 255)
 BOX_COLOR_WHITE = (255, 255, 255)
 BOX_COLOR_BLACK = (0, 0, 0)
-
-# Performance Settings
-ENABLE_THREADING = True  # Use threading for better performance
-BUFFER_SIZE = 1  # Camera buffer size

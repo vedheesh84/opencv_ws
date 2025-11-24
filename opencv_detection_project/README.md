@@ -1,12 +1,14 @@
-# OpenCV Object Detection and Color Identification
+# OpenCV Object Detection and Color Identification for Ubuntu 22.04
 
-Complete setup for object detection and color identification using OpenCV ML algorithms on Raspberry Pi 4 Model B with Camera Rev 1.3.
+Complete setup for object detection and color identification using OpenCV ML algorithms on **Raspberry Pi 4 Model B with Camera Rev 1.3 running Ubuntu Desktop 22.04**.
+
+This version uses **Picamera2** (libcamera-based) which is compatible with Ubuntu, unlike the legacy picamera library.
 
 ## Hardware Requirements
 
 - Raspberry Pi 4 Model B
 - Raspberry Pi Camera Rev 1.3
-- Ubuntu Desktop 22.04
+- Ubuntu Desktop 22.04 (64-bit)
 - Display (for viewing detection results)
 
 ## Features
@@ -15,89 +17,104 @@ Complete setup for object detection and color identification using OpenCV ML alg
 - **HSV Color Detection**: Identify and track 8 colors (red, green, blue, yellow, orange, purple, white, black)
 - **Combined Detection**: Run both object and color detection simultaneously with relationship analysis
 - **Real-time Processing**: Optimized for Raspberry Pi 4 performance
-- **Camera Test Utility**: Verify camera setup before running detection
+- **Picamera2 Support**: Uses modern libcamera framework for Ubuntu compatibility
 
 ## Project Structure
 
 ```
 opencv_detection_project/
-├── camera_test.py          # Test camera functionality
-├── object_detection.py     # Haar Cascade object detection
-├── color_detection.py      # HSV-based color identification
-├── combined_detection.py   # Both detections running together
-├── config.py              # Configuration settings
-├── requirements.txt       # Python dependencies
-└── README.md             # This file
+├── camera_test_ubuntu.py          # Test camera functionality
+├── object_detection_ubuntu.py     # Haar Cascade object detection
+├── color_detection_ubuntu.py      # HSV-based color identification
+├── combined_detection_ubuntu.py   # Both detections running together
+├── config_ubuntu.py               # Configuration settings
+├── requirements_ubuntu.txt        # Dependency information
+└── README_UBUNTU.md               # This file
 ```
 
 ## Installation
 
-### Step 1: Enable Legacy Camera Support
+### Step 1: Install System Dependencies
 
-The picamera library requires legacy camera support to be enabled:
-
-```bash
-sudo raspi-config
-```
-
-Navigate to: **Interface Options** → **Legacy Camera** → **Enable**
-
-Then reboot:
-
-```bash
-sudo reboot
-```
-
-### Step 2: Install System Dependencies
+This is the most important step for Ubuntu. Picamera2 must be installed via APT, not pip.
 
 ```bash
 # Update system packages
-sudo apt-get update
-sudo apt-get upgrade -y
+sudo apt update
+sudo apt upgrade -y
 
-# Install OpenCV dependencies
-sudo apt-get install -y python3-opencv opencv-data
+# Install Picamera2 and libcamera
+sudo apt install -y python3-picamera2
+sudo apt install -y python3-libcamera python3-kms++
 
-# Install pip if not already installed
-sudo apt-get install -y python3-pip
+# Install OpenCV and dependencies
+sudo apt install -y python3-opencv opencv-data
+sudo apt install -y python3-numpy
 
-# Install development libraries
-sudo apt-get install -y libatlas-base-dev libjasper-dev libqtgui4 libqt4-test
+# Install additional dependencies
+sudo apt install -y libcap-dev
 ```
 
-### Step 3: Install Python Dependencies
+### Step 2: Verify Camera Connection
+
+Check that your camera is detected:
 
 ```bash
-cd opencv_detection_project
+# Check camera detection
+libcamera-hello --list-cameras
 
-# Install Python packages
-pip3 install -r requirements.txt
-
-# Or install individually:
-pip3 install opencv-python==4.8.1.78
-pip3 install opencv-contrib-python==4.8.1.78
-pip3 install numpy==1.24.3
-pip3 install picamera==1.13
+# Test camera with a 5-second preview
+libcamera-hello -t 5000
 ```
 
-### Step 4: Verify Installation
+You should see your camera listed and a preview window should appear.
 
-Test your camera setup:
+### Step 3: Set Up Project Files
+
+Copy all the Ubuntu-specific files to your project directory:
 
 ```bash
-python3 camera_test.py
+cd /home/pi/opencv_ws/opencv_detection_project
+
+# Copy the Ubuntu-specific files (provided separately)
+# - camera_test_ubuntu.py
+# - color_detection_ubuntu.py
+# - object_detection_ubuntu.py
+# - combined_detection_ubuntu.py
+# - config_ubuntu.py
+
+# Make scripts executable
+chmod +x *.py
 ```
 
-You should see a live camera feed. Press 'q' to quit, 's' to save a snapshot.
+### Step 4: Verify Picamera2 Installation
+
+Test that Picamera2 is working:
+
+```bash
+python3 -c "from picamera2 import Picamera2; print('Picamera2 OK')"
+```
+
+If this works without errors, you're ready to go!
+
+### Step 5: Test Camera
+
+Run the camera test script:
+
+```bash
+python3 camera_test_ubuntu.py
+```
+
+You should see a live camera feed with FPS counter.
 
 ## Usage
 
 ### 1. Camera Test
 
-Test your camera before running detection:
+Test your camera setup:
 
 ```bash
-python3 camera_test.py
+python3 camera_test_ubuntu.py
 ```
 
 **Controls:**
@@ -106,17 +123,11 @@ python3 camera_test.py
 
 ### 2. Object Detection
 
-Detect objects using Haar Cascade classifiers:
+Detect faces and eyes using Haar Cascade classifiers:
 
 ```bash
-python3 object_detection.py
+python3 object_detection_ubuntu.py
 ```
-
-**Detects:**
-- Faces (frontal)
-- Eyes
-- Full bodies
-- Upper bodies
 
 **Controls:**
 - `q` - Quit
@@ -126,13 +137,8 @@ python3 object_detection.py
 Detect and track colors in real-time:
 
 ```bash
-python3 color_detection.py
+python3 color_detection_ubuntu.py
 ```
-
-**Detects:**
-- Red, Green, Blue
-- Yellow, Orange, Purple
-- White, Black
 
 **Controls:**
 - `q` - Quit
@@ -142,28 +148,23 @@ python3 color_detection.py
 Run both object and color detection together:
 
 ```bash
-python3 combined_detection.py
+python3 combined_detection_ubuntu.py
 ```
-
-**Features:**
-- Simultaneous object and color detection
-- Relationship analysis (which colors appear in detected objects)
-- Real-time FPS counter
 
 **Controls:**
 - `q` - Quit
-- `a` - Toggle analysis mode on/off
+- `a` - Toggle analysis mode (shows which colors appear in detected objects)
 
 ## Configuration
 
-Edit `config.py` to customize detection parameters:
+Edit `config_ubuntu.py` to customize settings:
 
 ### Camera Settings
 
 ```python
 CAMERA_RESOLUTION = (640, 480)  # Reduce for better performance
 CAMERA_FRAMERATE = 30
-CAMERA_ROTATION = 0  # Set to 180 if camera is upside down
+CAMERA_ROTATION = 0  # 0, 90, 180, or 270 degrees
 ```
 
 ### Detection Parameters
@@ -176,7 +177,7 @@ MIN_SIZE = (30, 30) # Minimum object size in pixels
 
 ### Color Ranges
 
-Adjust HSV color ranges based on your lighting conditions:
+Adjust HSV ranges based on lighting:
 
 ```python
 COLOR_RANGES = {
@@ -186,175 +187,233 @@ COLOR_RANGES = {
 }
 ```
 
-### Performance Optimization
-
-```python
-MIN_CONTOUR_AREA = 500  # Increase to reduce noise
-CAMERA_RESOLUTION = (320, 240)  # Lower resolution = higher FPS
-```
-
 ## Troubleshooting
 
 ### Camera Not Detected
 
-1. Check camera cable connection
-2. Enable legacy camera: `sudo raspi-config`
-3. Verify camera is detected:
-   ```bash
-   vcgencmd get_camera
-   ```
-   Should show: `supported=1 detected=1`
+1. **Check physical connection**: Ensure cable is properly connected to camera port (not HDMI)
 
-### ImportError: No module named 'picamera'
+2. **Test with libcamera**:
+   ```bash
+   libcamera-hello --list-cameras
+   ```
+
+3. **Check permissions**:
+   ```bash
+   sudo usermod -aG video $USER
+   # Log out and log back in
+   ```
+
+### ImportError: No module named 'picamera2'
+
+Picamera2 must be installed via APT on Ubuntu:
 
 ```bash
-pip3 install picamera==1.13
+sudo apt install -y python3-picamera2 python3-libcamera
 ```
+
+**DO NOT use pip to install picamera2 on Ubuntu** - it won't work properly.
 
 ### Haar Cascade Files Not Found
 
-Install OpenCV data files:
+Install opencv-data package:
 
 ```bash
-sudo apt-get install opencv-data
+sudo apt install opencv-data
 ```
 
-Or manually download cascades:
+Verify cascade files exist:
 
 ```bash
-wget https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml
-```
-
-Update paths in `config.py`:
-
-```python
-HAAR_CASCADE_PATHS = {
-    'face': '/path/to/haarcascade_frontalface_default.xml',
-}
+ls /usr/share/opencv4/haarcascades/
 ```
 
 ### Low FPS / Performance Issues
 
-1. Reduce camera resolution in `config.py`:
+1. **Reduce resolution** in `config_ubuntu.py`:
    ```python
    CAMERA_RESOLUTION = (320, 240)
    ```
 
-2. Increase MIN_NEIGHBORS to reduce processing:
+2. **Increase MIN_NEIGHBORS**:
    ```python
-   MIN_NEIGHBORS = 7
+   MIN_NEIGHBORS = 7  # More strict detection
    ```
 
-3. Disable X11 forwarding if running over SSH
+3. **Close other applications**
 
-4. Close other applications to free resources
+4. **Enable GPU acceleration**: Ensure you're using system OpenCV:
+   ```bash
+   python3 -c "import cv2; print(cv2.getBuildInformation())"
+   ```
 
-### Color Detection Not Working
+### cv2.imshow() Not Working
 
-1. Adjust HSV ranges in `config.py` based on lighting
-2. Increase MIN_CONTOUR_AREA to filter noise
-3. Ensure adequate lighting in the room
-4. Calibrate for your specific environment
+If running over SSH or headless:
+
+1. **Enable X11 forwarding** (if using SSH):
+   ```bash
+   ssh -X pi@your-pi-ip
+   ```
+
+2. **Or save frames instead of displaying**:
+   Comment out `cv2.imshow()` lines and add:
+   ```python
+   cv2.imwrite(f'frame_{count}.jpg', image)
+   ```
+
+### picamera vs picamera2 Confusion
+
+- **picamera** (v1): Legacy library, requires MMAL (Raspberry Pi OS only)
+- **picamera2**: Modern library, uses libcamera (works on Ubuntu)
+
+On Ubuntu 22.04, you MUST use picamera2.
 
 ## Performance Tips
 
-### For Best Performance on Raspberry Pi 4:
+### For Best Performance on Raspberry Pi 4 + Ubuntu:
 
-1. **Resolution**: Use 640x480 or lower
-2. **Framerate**: 30 FPS is optimal
-3. **Cooling**: Ensure adequate cooling (heatsink/fan)
-4. **Power**: Use official Raspberry Pi power supply
-5. **OS**: Close unnecessary applications
-6. **GPU Memory**: Increase GPU memory to 256MB:
+1. **Use system packages**: Install via apt, not pip
+2. **Resolution**: 640x480 or lower for smooth FPS
+3. **Cooling**: Use heatsink or active cooling
+4. **Power**: Official Raspberry Pi power supply (5V 3A)
+5. **Swap**: Increase if needed:
    ```bash
-   sudo raspi-config
-   # Performance Options → GPU Memory → 256
+   sudo dphys-swapfile swapoff
+   sudo nano /etc/dphys-swapfile
+   # Set CONF_SWAPSIZE=2048
+   sudo dphys-swapfile setup
+   sudo dphys-swapfile swapon
    ```
+
+## Key Differences from Raspberry Pi OS Version
+
+| Feature | Raspberry Pi OS | Ubuntu 22.04 |
+|---------|----------------|--------------|
+| Camera Library | picamera (v1) | Picamera2 |
+| Backend | MMAL | libcamera |
+| Installation | pip | apt |
+| raspi-config | Available | Not available |
+| Performance | Similar | Similar |
 
 ## Technical Details
 
-### Object Detection (Haar Cascades)
+### Picamera2 API
 
-- **Algorithm**: Viola-Jones cascade classifier
-- **Trained on**: Thousands of positive and negative images
-- **Advantages**: Fast, low computational cost, works on Pi 4
-- **Best for**: Frontal faces, eyes, basic shapes
+```python
+from picamera2 import Picamera2
 
-### Color Detection (HSV)
+# Initialize
+picam2 = Picamera2()
 
-- **Color Space**: HSV (Hue, Saturation, Value)
-- **Method**: Threshold-based segmentation with morphological operations
-- **Advantages**: Robust to lighting changes
-- **Process**: BGR → HSV → Threshold → Contour detection
+# Configure
+config = picam2.create_preview_configuration(
+    main={"size": (640, 480), "format": "RGB888"}
+)
+picam2.configure(config)
+
+# Start
+picam2.start()
+
+# Capture frame
+frame = picam2.capture_array()  # Returns numpy array in RGB format
+
+# Convert to BGR for OpenCV
+frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+
+# Stop
+picam2.stop()
+```
+
+### Color Space Conversion
+
+Picamera2 returns frames in RGB format by default, but OpenCV expects BGR:
+
+```python
+# Always convert when using with OpenCV
+frame_bgr = cv2.cvtColor(frame_rgb, cv2.COLOR_RGB2BGR)
+```
 
 ## Advanced Usage
 
-### Custom Color Ranges
+### Run Headless (No Display)
 
-To detect custom colors, add to `config.py`:
+To run without X11 display:
 
 ```python
-COLOR_RANGES['pink'] = [((140, 50, 50), (170, 255, 255))]
+# Comment out cv2.imshow() lines
+# Save or process frames without displaying:
+cv2.imwrite(f'output_{count}.jpg', image)
 ```
 
 ### Custom Haar Cascades
 
 To detect custom objects:
 
-1. Train your own Haar Cascade
-2. Add path to `config.py`:
+1. Train your cascade (using opencv_traincascade)
+2. Add to `config_ubuntu.py`:
    ```python
    HAAR_CASCADE_PATHS['custom'] = '/path/to/custom.xml'
    ```
-3. Use in detection code
 
-### Headless Mode (No Display)
+### Adjust Color Detection for Lighting
 
-For running without display (SSH/headless):
-
-1. Comment out `cv2.imshow()` calls
-2. Save frames to disk instead:
-   ```python
-   cv2.imwrite(f'frame_{count}.jpg', image)
-   ```
-
-## Examples
-
-### Detect Red Objects Only
-
-Modify `color_detection.py`:
+Calibrate HSV ranges for your environment:
 
 ```python
-# In config.py, keep only red:
-COLOR_RANGES = {
-    'red': [((0, 100, 100), (10, 255, 255)),
-            ((160, 100, 100), (180, 255, 255))]
-}
+# Run this to find color ranges:
+import cv2
+import numpy as np
+
+def nothing(x):
+    pass
+
+cv2.namedWindow('HSV Calibration')
+cv2.createTrackbar('H_min', 'HSV Calibration', 0, 179, nothing)
+cv2.createTrackbar('H_max', 'HSV Calibration', 179, 179, nothing)
+cv2.createTrackbar('S_min', 'HSV Calibration', 0, 255, nothing)
+cv2.createTrackbar('S_max', 'HSV Calibration', 255, 255, nothing)
+cv2.createTrackbar('V_min', 'HSV Calibration', 0, 255, nothing)
+cv2.createTrackbar('V_max', 'HSV Calibration', 255, 255, nothing)
+
+# Capture and adjust ranges to isolate your target color
 ```
-
-### Face Detection with Dominant Color
-
-Use `combined_detection.py` with analysis mode enabled (press 'a').
-
-## License
-
-This project uses OpenCV which is licensed under Apache 2.0 License.
 
 ## Resources
 
+- [Picamera2 Documentation](https://datasheets.raspberrypi.com/camera/picamera2-manual.pdf)
+- [libcamera Documentation](https://libcamera.org/)
 - [OpenCV Documentation](https://docs.opencv.org/)
-- [Raspberry Pi Camera Documentation](https://picamera.readthedocs.io/)
-- [Haar Cascade Training](https://docs.opencv.org/3.4/dc/d88/tutorial_traincascade.html)
-- [HSV Color Space](https://en.wikipedia.org/wiki/HSL_and_HSV)
+- [Raspberry Pi Camera on Ubuntu](https://ubuntu.com/tutorials/how-to-use-a-raspberry-pi-camera-with-ubuntu)
 
-## Support
+## Common Commands Reference
 
-For issues or questions:
-1. Check troubleshooting section above
-2. Verify hardware connections
-3. Review configuration settings
-4. Check system logs: `dmesg | grep -i camera`
+```bash
+# Check camera
+libcamera-hello --list-cameras
+
+# Test camera capture
+libcamera-still -o test.jpg
+
+# Check libcamera version
+dpkg -l | grep libcamera
+
+# Check picamera2 version
+python3 -c "import picamera2; print(picamera2.__version__)"
+
+# Reinstall if needed
+sudo apt install --reinstall python3-picamera2
+
+# Check OpenCV build info
+python3 -c "import cv2; print(cv2.getBuildInformation())" | grep -i libcamera
+```
+
+## License
+
+This project uses OpenCV (Apache 2.0 License) and Picamera2 (BSD License).
 
 ---
 
-**Created for Raspberry Pi 4 Model B with Camera Rev 1.3 running Ubuntu Desktop 22.04**
+**Optimized for Raspberry Pi 4 Model B with Camera Rev 1.3 on Ubuntu Desktop 22.04 LTS**
+
+For Raspberry Pi OS (Bullseye/Bookworm), use the original picamera-based version instead.

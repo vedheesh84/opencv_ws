@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 """
-HSV-based Color Detection Script
-Detects and tracks colors in real-time using Raspberry Pi Camera
+HSV-based Color Detection Script for Ubuntu 22.04
+Uses Picamera2 for camera access
 """
 
 import cv2
 import numpy as np
 import time
-from picamera.array import PiRGBArray
-from picamera import PiCamera
+from picamera2 import Picamera2
 import config
 
 class ColorDetector:
@@ -22,7 +21,7 @@ class ColorDetector:
         Detect colors in the frame
         Returns: list of detected colors with their bounding boxes
         """
-        # Convert BGR to HSV
+        # Convert RGB/BGR to HSV
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
         detected_colors = []
@@ -123,21 +122,29 @@ def main():
     print(f"Resolution: {config.CAMERA_RESOLUTION}")
     print(f"Detecting colors: {', '.join(config.COLOR_RANGES.keys())}")
 
-    # Initialize camera
-    camera = PiCamera()
-    camera.resolution = config.CAMERA_RESOLUTION
-    camera.framerate = config.CAMERA_FRAMERATE
-    camera.rotation = config.CAMERA_ROTATION
+    # Initialize Picamera2
+    picam2 = Picamera2()
 
-    # Initialize capture array
-    raw_capture = PiRGBArray(camera, size=config.CAMERA_RESOLUTION)
+    # Create camera configuration
+    camera_config = picam2.create_preview_configuration(
+        main={"size": config.CAMERA_RESOLUTION, "format": "RGB888"}
+    )
+
+    # Configure and start camera
+    picam2.configure(camera_config)
+
+    if config.CAMERA_ROTATION != 0:
+        picam2.set_controls({"Transform": config.CAMERA_ROTATION})
+
+    print("Starting camera...")
+    picam2.start()
 
     # Initialize color detector
     detector = ColorDetector()
 
     # Allow camera to warm up
-    print(f"Warming up camera for {config.CAMERA_WARMUP_TIME} seconds...")
-    time.sleep(config.CAMERA_WARMUP_TIME)
+    print("Warming up camera for 2 seconds...")
+    time.sleep(2)
 
     print("\nColor detection started!")
     print("Press 'q' to quit")
@@ -146,10 +153,12 @@ def main():
     start_time = time.time()
 
     try:
-        # Capture frames continuously
-        for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port=True):
-            # Get the frame
-            image = frame.array
+        while True:
+            # Capture frame
+            frame = picam2.capture_array()
+
+            # Convert RGB to BGR for OpenCV
+            image = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
             # Detect colors
             detections = detector.detect_colors(image)
@@ -172,7 +181,7 @@ def main():
                        config.FONT_THICKNESS)
 
             # Display frame
-            cv2.imshow("Color Detection", image)
+            cv2.imshow("Color Detection - Picamera2", image)
 
             # Handle keyboard input
             key = cv2.waitKey(1) & 0xFF
@@ -180,20 +189,20 @@ def main():
                 print("\nQuitting...")
                 break
 
-            # Clear the stream for next frame
-            raw_capture.truncate(0)
-
     except KeyboardInterrupt:
         print("\nInterrupted by user")
 
+    except Exception as e:
+        print(f"\nError: {e}")
+
     finally:
         # Cleanup
-        camera.close()
+        picam2.stop()
         cv2.destroyAllWindows()
         print("Color detection stopped")
 
 if __name__ == "__main__":
     print("="*50)
-    print("HSV Color Detection System")
+    print("HSV Color Detection System (Picamera2/Ubuntu)")
     print("="*50)
     main()

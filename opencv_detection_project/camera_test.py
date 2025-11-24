@@ -1,34 +1,43 @@
 #!/usr/bin/env python3
 """
-Camera Test Script for Raspberry Pi Camera Rev 1.3
-Tests camera functionality with picamera library
+Camera Test Script for Raspberry Pi Camera Rev 1.3 on Ubuntu 22.04
+Uses Picamera2 (libcamera-based) instead of legacy picamera
 """
 
 import cv2
 import numpy as np
 import time
-from picamera.array import PiRGBArray
-from picamera import PiCamera
+from picamera2 import Picamera2
 import config
 
 def test_camera():
     """Test camera capture and display"""
-    print("Initializing Raspberry Pi Camera Rev 1.3...")
+    print("Initializing Raspberry Pi Camera Rev 1.3 with Picamera2...")
     print(f"Resolution: {config.CAMERA_RESOLUTION}")
-    print(f"Framerate: {config.CAMERA_FRAMERATE}")
+    print(f"Format: {config.CAMERA_CONFIG['format']}")
 
-    # Initialize camera
-    camera = PiCamera()
-    camera.resolution = config.CAMERA_RESOLUTION
-    camera.framerate = config.CAMERA_FRAMERATE
-    camera.rotation = config.CAMERA_ROTATION
+    # Initialize Picamera2
+    picam2 = Picamera2()
 
-    # Initialize capture array
-    raw_capture = PiRGBArray(camera, size=config.CAMERA_RESOLUTION)
+    # Create camera configuration
+    camera_config = picam2.create_preview_configuration(
+        main={"size": config.CAMERA_RESOLUTION, "format": "RGB888"}
+    )
+
+    # Configure camera
+    picam2.configure(camera_config)
+
+    # Apply rotation if needed
+    if config.CAMERA_ROTATION != 0:
+        picam2.set_controls({"Transform": config.CAMERA_ROTATION})
+
+    # Start camera
+    print("Starting camera...")
+    picam2.start()
 
     # Allow camera to warm up
-    print(f"Warming up camera for {config.CAMERA_WARMUP_TIME} seconds...")
-    time.sleep(config.CAMERA_WARMUP_TIME)
+    print("Warming up camera for 2 seconds...")
+    time.sleep(2)
 
     print("\nCamera ready!")
     print("Press 'q' to quit")
@@ -38,30 +47,28 @@ def test_camera():
     start_time = time.time()
 
     try:
-        # Capture frames continuously
-        for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port=True):
-            # Get the frame
-            image = frame.array
+        while True:
+            # Capture frame
+            frame = picam2.capture_array()
+
+            # Convert RGB to BGR for OpenCV
+            frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
             # Calculate FPS
             frame_count += 1
-            if frame_count % 30 == 0:
-                elapsed_time = time.time() - start_time
-                fps = frame_count / elapsed_time
-                print(f"FPS: {fps:.2f}")
-
-            # Display FPS on frame
             elapsed = time.time() - start_time
             fps = frame_count / elapsed if elapsed > 0 else 0
-            cv2.putText(image, f"FPS: {fps:.1f}", (10, 30),
+
+            # Display FPS on frame
+            cv2.putText(frame_bgr, f"FPS: {fps:.1f}", (10, 30),
                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
             # Add instructions
-            cv2.putText(image, "Press 'q' to quit, 's' to save", (10, 460),
+            cv2.putText(frame_bgr, "Press 'q' to quit, 's' to save", (10, 460),
                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 
             # Display frame
-            cv2.imshow("Camera Test", image)
+            cv2.imshow("Camera Test - Picamera2", frame_bgr)
 
             # Handle keyboard input
             key = cv2.waitKey(1) & 0xFF
@@ -71,23 +78,27 @@ def test_camera():
                 break
             elif key == ord('s'):
                 filename = f"snapshot_{int(time.time())}.jpg"
-                cv2.imwrite(filename, image)
+                cv2.imwrite(filename, frame_bgr)
                 print(f"Snapshot saved: {filename}")
 
-            # Clear the stream for next frame
-            raw_capture.truncate(0)
+            # Print FPS every 30 frames
+            if frame_count % 30 == 0:
+                print(f"FPS: {fps:.2f}")
 
     except KeyboardInterrupt:
         print("\nInterrupted by user")
 
+    except Exception as e:
+        print(f"\nError: {e}")
+
     finally:
         # Cleanup
-        camera.close()
+        picam2.stop()
         cv2.destroyAllWindows()
         print("Camera closed successfully")
 
 if __name__ == "__main__":
     print("="*50)
-    print("Raspberry Pi Camera Test")
+    print("Raspberry Pi Camera Test (Picamera2/Ubuntu)")
     print("="*50)
     test_camera()

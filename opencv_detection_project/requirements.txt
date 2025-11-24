@@ -1,16 +1,15 @@
 # OpenCV Object Detection and Color Identification Requirements
 # For Raspberry Pi 4 Model B with Ubuntu Desktop 22.04
 
-# Core dependencies
-opencv-python==4.8.1.78
-opencv-contrib-python==4.8.1.78
-numpy==1.24.3
+# Core dependencies (optional - system packages recommended)
+# opencv-python>=4.8.0
+# numpy>=1.24.0
 
-# Raspberry Pi Camera support (picamera v1 for legacy camera)
-picamera==1.13
+# IMPORTANT: On Ubuntu 22.04, install these via APT, not pip:
+# sudo apt update
+# sudo apt install -y python3-picamera2
+# sudo apt install -y python3-libcamera python3-kms++
+# sudo apt install -y python3-opencv python3-numpy
 
-# Optional: RPi.GPIO for hardware control (if needed)
-# RPi.GPIO==0.7.1
-
-# Note: Make sure to enable legacy camera support on Raspberry Pi
-# Run: sudo raspi-config -> Interface Options -> Legacy Camera -> Enable
+# Verify picamera2 installation:
+# python3 -c "from picamera2 import Picamera2; print('Success!')"

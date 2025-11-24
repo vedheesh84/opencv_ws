@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 """
-Haar Cascade Object Detection Script
-Detects objects (faces, eyes, bodies) using classical ML cascades
+Haar Cascade Object Detection Script for Ubuntu 22.04
+Uses Picamera2 for camera access
 """
 
 import cv2
 import numpy as np
 import time
 import os
-from picamera.array import PiRGBArray
-from picamera import PiCamera
+from picamera2 import Picamera2
 import config
 
 class ObjectDetector:
@@ -144,26 +143,34 @@ def main():
     print("Initializing Object Detection System...")
     print(f"Resolution: {config.CAMERA_RESOLUTION}")
 
-    # Initialize camera
-    camera = PiCamera()
-    camera.resolution = config.CAMERA_RESOLUTION
-    camera.framerate = config.CAMERA_FRAMERATE
-    camera.rotation = config.CAMERA_ROTATION
+    # Initialize Picamera2
+    picam2 = Picamera2()
 
-    # Initialize capture array
-    raw_capture = PiRGBArray(camera, size=config.CAMERA_RESOLUTION)
+    # Create camera configuration
+    camera_config = picam2.create_preview_configuration(
+        main={"size": config.CAMERA_RESOLUTION, "format": "RGB888"}
+    )
+
+    # Configure camera
+    picam2.configure(camera_config)
+
+    if config.CAMERA_ROTATION != 0:
+        picam2.set_controls({"Transform": config.CAMERA_ROTATION})
 
     # Initialize multi-object detector (face and eye detection)
     try:
         detector = MultiObjectDetector(cascade_types=['face', 'eye'])
     except ValueError as e:
         print(f"Error initializing detectors: {e}")
-        camera.close()
         return
 
+    # Start camera
+    print("Starting camera...")
+    picam2.start()
+
     # Allow camera to warm up
-    print(f"Warming up camera for {config.CAMERA_WARMUP_TIME} seconds...")
-    time.sleep(config.CAMERA_WARMUP_TIME)
+    print("Warming up camera for 2 seconds...")
+    time.sleep(2)
 
     print("\nObject detection started!")
     print("Press 'q' to quit")
@@ -172,10 +179,12 @@ def main():
     start_time = time.time()
 
     try:
-        # Capture frames continuously
-        for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port=True):
-            # Get the frame
-            image = frame.array
+        while True:
+            # Capture frame
+            frame = picam2.capture_array()
+
+            # Convert RGB to BGR for OpenCV
+            image = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
             # Detect objects
             detections = detector.detect_all(image)
@@ -198,7 +207,7 @@ def main():
                        config.FONT_THICKNESS)
 
             # Display frame
-            cv2.imshow("Object Detection", image)
+            cv2.imshow("Object Detection - Picamera2", image)
 
             # Handle keyboard input
             key = cv2.waitKey(1) & 0xFF
@@ -206,20 +215,20 @@ def main():
                 print("\nQuitting...")
                 break
 
-            # Clear the stream for next frame
-            raw_capture.truncate(0)
-
     except KeyboardInterrupt:
         print("\nInterrupted by user")
 
+    except Exception as e:
+        print(f"\nError: {e}")
+
     finally:
         # Cleanup
-        camera.close()
+        picam2.stop()
         cv2.destroyAllWindows()
         print("Object detection stopped")
 
 if __name__ == "__main__":
     print("="*50)
-    print("Haar Cascade Object Detection System")
+    print("Haar Cascade Object Detection (Picamera2/Ubuntu)")
     print("="*50)
     main()

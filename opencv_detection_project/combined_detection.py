@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
-Combined Object and Color Detection Script
+Combined Object and Color Detection Script for Ubuntu 22.04
+Uses Picamera2 for camera access
 Runs both Haar Cascade object detection and HSV color detection simultaneously
 """
 
 import cv2
 import numpy as np
 import time
-from picamera.array import PiRGBArray
-from picamera import PiCamera
+from picamera2 import Picamera2
 import config
-from object_detection import MultiObjectDetector
-from color_detection import ColorDetector
+from object_detection_ubuntu import MultiObjectDetector
+from color_detection_ubuntu import ColorDetector
 
 class CombinedDetector:
     """Combined detector for objects and colors"""
@@ -107,26 +107,34 @@ class CombinedDetector:
 def main():
     """Main function to run combined detection"""
     print("="*50)
-    print("Combined Object and Color Detection System")
+    print("Combined Detection (Picamera2/Ubuntu)")
     print("="*50)
     print(f"Resolution: {config.CAMERA_RESOLUTION}")
-    print(f"Framerate: {config.CAMERA_FRAMERATE}")
 
-    # Initialize camera
-    camera = PiCamera()
-    camera.resolution = config.CAMERA_RESOLUTION
-    camera.framerate = config.CAMERA_FRAMERATE
-    camera.rotation = config.CAMERA_ROTATION
+    # Initialize Picamera2
+    picam2 = Picamera2()
 
-    # Initialize capture array
-    raw_capture = PiRGBArray(camera, size=config.CAMERA_RESOLUTION)
+    # Create camera configuration
+    camera_config = picam2.create_preview_configuration(
+        main={"size": config.CAMERA_RESOLUTION, "format": "RGB888"}
+    )
+
+    # Configure camera
+    picam2.configure(camera_config)
+
+    if config.CAMERA_ROTATION != 0:
+        picam2.set_controls({"Transform": config.CAMERA_ROTATION})
 
     # Initialize combined detector
     detector = CombinedDetector(cascade_types=['face', 'eye'])
 
+    # Start camera
+    print("Starting camera...")
+    picam2.start()
+
     # Allow camera to warm up
-    print(f"Warming up camera for {config.CAMERA_WARMUP_TIME} seconds...")
-    time.sleep(config.CAMERA_WARMUP_TIME)
+    print("Warming up camera for 2 seconds...")
+    time.sleep(2)
 
     print("\nCombined detection started!")
     print("Press 'q' to quit")
@@ -137,10 +145,12 @@ def main():
     show_analysis = True
 
     try:
-        # Capture frames continuously
-        for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port=True):
-            # Get the frame
-            image = frame.array
+        while True:
+            # Capture frame
+            frame = picam2.capture_array()
+
+            # Convert RGB to BGR for OpenCV
+            image = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
             # Run detections
             object_detections, color_detections = detector.detect_all(image)
@@ -186,7 +196,7 @@ def main():
                        config.FONT_THICKNESS)
 
             # Display frame
-            cv2.imshow("Combined Detection", image)
+            cv2.imshow("Combined Detection - Picamera2", image)
 
             # Handle keyboard input
             key = cv2.waitKey(1) & 0xFF
@@ -197,15 +207,15 @@ def main():
                 show_analysis = not show_analysis
                 print(f"Analysis mode: {'ON' if show_analysis else 'OFF'}")
 
-            # Clear the stream for next frame
-            raw_capture.truncate(0)
-
     except KeyboardInterrupt:
         print("\nInterrupted by user")
 
+    except Exception as e:
+        print(f"\nError: {e}")
+
     finally:
         # Cleanup
-        camera.close()
+        picam2.stop()
         cv2.destroyAllWindows()
         print("Combined detection stopped")
 
