@@ -192,18 +192,29 @@ class UnifiedDetector:
         return results
 
     def update_arduino(self, results):
-        """Send detection results to Arduino"""
+        """
+        Send detection results to Arduino.
+
+        New behavior: Arduino runs a single-loop sequence that automatically
+        returns to rest position. We only send "start" when motion is detected
+        and the Arduino is idle. We send "stop" if motion stops while Arduino
+        is still running (to interrupt early).
+        """
         if not self.arduino or not self.arduino.is_ready():
             return
 
+        # Check for any pending responses from Arduino
+        self.arduino.check_responses()
+
         if self.motion_active:
-            # Motion detected - start eye movement sequence
-            # This sends "move_loop" command to Arduino
+            # Motion detected - trigger sequence if not already running
+            # Arduino will run full animation and auto-return to rest
             self.arduino.start_sequence()
         else:
-            # No motion - close eyes and stop sequence
-            # This sends "close" command to Arduino
-            self.arduino.stop_sequence()
+            # No motion - stop sequence if currently running
+            # This interrupts the animation and returns to rest early
+            if self.arduino.is_running or self.arduino.sequence_triggered:
+                self.arduino.stop_sequence()
 
     def draw_overlay(self, frame, results):
         """Draw detection overlay on frame"""
@@ -232,8 +243,8 @@ class UnifiedDetector:
         # Arduino status
         if self.arduino and self.arduino.is_ready():
             status = self.arduino.get_status()
-            eye_state = "Looping" if status['looping'] else ("Open" if status['eyes_open'] else "Closed")
-            arduino_text = f"Arduino: Connected | Eyes: {eye_state}"
+            eye_state = "Running" if status['running'] else "Idle"
+            arduino_text = f"Arduino: Connected | {eye_state}"
         else:
             arduino_text = "Arduino: Disconnected"
         cv2.putText(frame, arduino_text, (10, 60),

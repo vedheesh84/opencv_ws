@@ -79,3 +79,232 @@ Failed to connect to Arduino: [Errno 2] could not open port /dev/ttyACM0: [Errno
 2025-11-25 16:15:11,657 - INFO - Camera stabilization period...
 2025-11-25 16:15:18,318 - INFO - Stabilization complete, starting detection
 2025-11-25 16:15:18,318 - INFO - Stabilization complete, starting detection
+============================================================
+Unified Detection System
+Motion + Object + Color Detection with Arduino Control
+2025-11-25 17:04:16,281 - INFO - Initializing Unified Detection System...
+============================================================
+2025-11-25 17:04:16,281 - INFO - Initializing Unified Detection System...
+2025-11-25 17:04:16,282 - INFO - Opening camera 0...
+2025-11-25 17:04:16,282 - INFO - Opening camera 0...
+2025-11-25 17:04:18,931 - INFO - Camera initialized: 640x480 @ 30fps
+2025-11-25 17:04:18,931 - INFO - Camera initialized: 640x480 @ 30fps
+2025-11-25 17:04:18,932 - INFO - Initializing detectors...
+2025-11-25 17:04:18,932 - INFO - Initializing detectors...
+2025-11-25 17:04:18,938 - INFO - Motion detector initialized
+2025-11-25 17:04:18,938 - INFO - Motion detector initialized
+2025-11-25 17:04:18,939 - INFO - Color detector initialized
+2025-11-25 17:04:18,939 - INFO - Color detector initialized
+Loaded face cascade successfully
+Loaded eye cascade successfully
+2025-11-25 17:04:19,047 - INFO - Object detector initialized
+2025-11-25 17:04:19,047 - INFO - Object detector initialized
+2025-11-25 17:04:19,047 - INFO - Initializing Arduino controller...
+2025-11-25 17:04:19,047 - INFO - Initializing Arduino controller...
+Failed to connect to Arduino: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+2025-11-25 17:04:19,048 - WARNING - Arduino not responding
+2025-11-25 17:04:19,048 - WARNING - Arduino not responding
+2025-11-25 17:04:19,048 - INFO - Unified Detection System initialized
+2025-11-25 17:04:19,048 - INFO - Unified Detection System initialized
+2025-11-25 17:04:19,048 - INFO - Starting detection loop...
+2025-11-25 17:04:19,048 - INFO - Starting detection loop...
+2025-11-25 17:04:19,049 - INFO - Camera stabilization period...
+2025-11-25 17:04:19,049 - INFO - Camera stabilization period...
+2025-11-25 17:04:25,466 - INFO - Stabilization complete, starting detection
+2025-11-25 17:04:25,466 - INFO - Stabilization complete, starting detection
+============================================================
+Unified Detection System
+Motion + Object + Color Detection with Arduino Control
+============================================================
+2025-11-25 17:23:07,128 - INFO - Initializing Unified Detection System...
+2025-11-25 17:23:07,128 - INFO - Initializing Unified Detection System...
+2025-11-25 17:23:07,129 - INFO - Opening camera 0...
+2025-11-25 17:23:07,129 - INFO - Opening camera 0...
+2025-11-25 17:23:09,778 - INFO - Camera initialized: 640x480 @ 30fps
+2025-11-25 17:23:09,778 - INFO - Camera initialized: 640x480 @ 30fps
+2025-11-25 17:23:09,779 - INFO - Initializing detectors...
+2025-11-25 17:23:09,779 - INFO - Initializing detectors...
+2025-11-25 17:23:09,786 - INFO - Motion detector initialized
+2025-11-25 17:23:09,786 - INFO - Motion detector initialized
+2025-11-25 17:23:09,786 - INFO - Color detector initialized
+2025-11-25 17:23:09,786 - INFO - Color detector initialized
+Loaded face cascade successfully
+Loaded eye cascade successfully
+2025-11-25 17:23:09,894 - INFO - Object detector initialized
+2025-11-25 17:23:09,894 - INFO - Object detector initialized
+2025-11-25 17:23:09,895 - INFO - Initializing Arduino controller...
+2025-11-25 17:23:09,895 - INFO - Initializing Arduino controller...
+Failed to connect to Arduino: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+2025-11-25 17:23:09,895 - WARNING - Arduino not responding
+2025-11-25 17:23:09,895 - WARNING - Arduino not responding
+2025-11-25 17:23:09,895 - INFO - Unified Detection System initialized
+2025-11-25 17:23:09,895 - INFO - Unified Detection System initialized
+2025-11-25 17:23:09,896 - INFO - Starting detection loop...
+2025-11-25 17:23:09,896 - INFO - Starting detection loop...
+2025-11-25 17:23:09,896 - INFO - Camera stabilization period...
+2025-11-25 17:23:09,896 - INFO - Camera stabilization period...
+2025-11-25 17:23:16,660 - INFO - Stabilization complete, starting detection
+2025-11-25 17:23:16,660 - INFO - Stabilization complete, starting detection
+2025-11-25 17:48:20,722 - INFO - Received signal 15, shutting down...
+2025-11-25 17:48:20,727 - INFO - Stop requested
+2025-11-25 17:48:20,732 - INFO - Cleaning up...
+2025-11-25 17:48:20,722 - INFO - Received signal 15, shutting down...
+2025-11-25 17:48:20,727 - INFO - Stop requested
+2025-11-25 17:48:20,732 - INFO - Cleaning up...
+2025-11-25 17:48:20,760 - INFO - Cleanup complete
+2025-11-25 17:48:20,760 - INFO - Cleanup complete
+Unified Detection System stopped
+============================================================
+Unified Detection System
+Motion + Object + Color Detection with Arduino Control
+============================================================
+2025-11-25 17:48:37,573 - INFO - Initializing Unified Detection System...
+2025-11-25 17:48:37,573 - INFO - Initializing Unified Detection System...
+2025-11-25 17:48:37,573 - INFO - Opening camera 0...
+2025-11-25 17:48:37,573 - INFO - Opening camera 0...
+2025-11-25 17:48:40,055 - INFO - Camera initialized: 640x480 @ 30fps
+2025-11-25 17:48:40,055 - INFO - Camera initialized: 640x480 @ 30fps
+2025-11-25 17:48:40,062 - INFO - Initializing detectors...
+2025-11-25 17:48:40,062 - INFO - Initializing detectors...
+2025-11-25 17:48:40,078 - INFO - Motion detector initialized
+2025-11-25 17:48:40,078 - INFO - Motion detector initialized
+2025-11-25 17:48:40,078 - INFO - Color detector initialized
+2025-11-25 17:48:40,078 - INFO - Color detector initialized
+Loaded face cascade successfully
+Loaded eye cascade successfully
+2025-11-25 17:48:40,185 - INFO - Object detector initialized
+2025-11-25 17:48:40,185 - INFO - Object detector initialized
+2025-11-25 17:48:40,185 - INFO - Initializing Arduino controller...
+2025-11-25 17:48:40,185 - INFO - Initializing Arduino controller...
+Arduino connected on /dev/ttyACM0
+2025-11-25 17:48:42,694 - INFO - Arduino controller ready
+2025-11-25 17:48:42,694 - INFO - Arduino controller ready
+2025-11-25 17:48:42,694 - INFO - Unified Detection System initialized
+2025-11-25 17:48:42,694 - INFO - Unified Detection System initialized
+2025-11-25 17:48:42,695 - INFO - Starting detection loop...
+2025-11-25 17:48:42,695 - INFO - Starting detection loop...
+2025-11-25 17:48:42,695 - INFO - Camera stabilization period...
+2025-11-25 17:48:42,695 - INFO - Camera stabilization period...
+2025-11-25 17:48:48,054 - INFO - Stabilization complete, starting detection
+2025-11-25 17:48:48,054 - INFO - Stabilization complete, starting detection
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+2025-11-25 17:54:23,363 - INFO - Initializing Unified Detection System...
+2025-11-25 17:54:23,364 - INFO - Opening camera 0...
+2025-11-25 17:54:23,378 - ERROR - Failed to open camera!
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+2025-11-25 17:55:26,963 - INFO - Initializing Unified Detection System...
+2025-11-25 17:55:26,963 - INFO - Opening camera 0...
+2025-11-25 17:55:26,975 - ERROR - Failed to open camera!
+2025-11-25 17:55:35,104 - INFO - Initializing Unified Detection System...
+2025-11-25 17:55:35,105 - INFO - Opening camera 0...
+2025-11-25 17:55:35,116 - ERROR - Failed to open camera!
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+Arduino: Sequence started
+Arduino: Sequence complete
+2025-11-25 18:02:58,727 - INFO - Received signal 15, shutting down...
+2025-11-25 18:02:58,741 - INFO - Stop requested
+2025-11-25 18:02:58,742 - INFO - Cleaning up...
+2025-11-25 18:02:58,727 - INFO - Received signal 15, shutting down...
+2025-11-25 18:02:58,741 - INFO - Stop requested
+2025-11-25 18:02:58,742 - INFO - Cleaning up...
+Arduino disconnected
+2025-11-25 18:02:58,892 - INFO - Cleanup complete
+2025-11-25 18:02:58,892 - INFO - Cleanup complete
+Unified Detection System stopped
+============================================================
+Unified Detection System
+Motion + Object + Color Detection with Arduino Control
+============================================================
+2025-11-25 18:03:15,684 - INFO - Initializing Unified Detection System...
+2025-11-25 18:03:15,684 - INFO - Initializing Unified Detection System...
+2025-11-25 18:03:15,684 - INFO - Opening camera 0...
+2025-11-25 18:03:15,684 - INFO - Opening camera 0...
+2025-11-25 18:03:18,154 - INFO - Camera initialized: 640x480 @ 30fps
+2025-11-25 18:03:18,154 - INFO - Camera initialized: 640x480 @ 30fps
+2025-11-25 18:03:18,155 - INFO - Initializing detectors...
+2025-11-25 18:03:18,155 - INFO - Initializing detectors...
+2025-11-25 18:03:18,158 - INFO - Motion detector initialized
+2025-11-25 18:03:18,158 - INFO - Motion detector initialized
+2025-11-25 18:03:18,159 - INFO - Color detector initialized
+2025-11-25 18:03:18,159 - INFO - Color detector initialized
+Loaded face cascade successfully
+Loaded eye cascade successfully
+2025-11-25 18:03:18,258 - INFO - Object detector initialized
+2025-11-25 18:03:18,258 - INFO - Object detector initialized
+2025-11-25 18:03:18,258 - INFO - Initializing Arduino controller...
+2025-11-25 18:03:18,258 - INFO - Initializing Arduino controller...
+Arduino connected on /dev/ttyACM0
+2025-11-25 18:03:20,774 - INFO - Arduino controller ready
+2025-11-25 18:03:20,774 - INFO - Arduino controller ready
+2025-11-25 18:03:20,775 - INFO - Unified Detection System initialized
+2025-11-25 18:03:20,775 - INFO - Unified Detection System initialized
+2025-11-25 18:03:20,792 - INFO - Starting detection loop...
+2025-11-25 18:03:20,792 - INFO - Starting detection loop...
+2025-11-25 18:03:20,793 - INFO - Camera stabilization period...
+2025-11-25 18:03:20,793 - INFO - Camera stabilization period...
+2025-11-25 18:03:26,115 - INFO - Stabilization complete, starting detection
+2025-11-25 18:03:26,115 - INFO - Stabilization complete, starting detection
+2025-11-25 18:04:37,345 - INFO - Received signal 15, shutting down...
+2025-11-25 18:04:37,346 - INFO - Stop requested
+2025-11-25 18:04:37,514 - INFO - Cleaning up...
