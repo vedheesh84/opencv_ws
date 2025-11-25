@@ -1,0 +1,20 @@
+============================================================
+Unified Detection System
+Motion + Object + Color Detection with Arduino Control
+============================================================
+2025-11-25 16:15:09,026 - INFO - Initializing Unified Detection System...
+2025-11-25 16:15:09,027 - INFO - Opening camera 0...
+2025-11-25 16:15:11,558 - INFO - Camera initialized: 640x480 @ 30fps
+2025-11-25 16:15:11,559 - INFO - Initializing detectors...
+2025-11-25 16:15:11,560 - INFO - Motion detector initialized
+2025-11-25 16:15:11,560 - INFO - Color detector initialized
+Loaded face cascade successfully
+Loaded eye cascade successfully
+2025-11-25 16:15:11,655 - INFO - Object detector initialized
+2025-11-25 16:15:11,656 - INFO - Initializing Arduino controller...
+Failed to connect to Arduino: [Errno 2] could not open port /dev/ttyACM0: [Errno 2] No such file or directory: '/dev/ttyACM0'
+2025-11-25 16:15:11,657 - WARNING - Arduino not responding
+2025-11-25 16:15:11,657 - INFO - Unified Detection System initialized
+2025-11-25 16:15:11,657 - INFO - Starting detection loop...
+2025-11-25 16:15:11,657 - INFO - Camera stabilization period...
+2025-11-25 16:15:18,318 - INFO - Stabilization complete, starting detection

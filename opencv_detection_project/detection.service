@@ -1,0 +1,30 @@
+[Unit]
+Description=Unified Object Detection System with Arduino Control
+After=network.target multi-user.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/opencv_ws/opencv_detection_project
+ExecStart=/bin/bash /home/pi/opencv_ws/opencv_detection_project/start_detection.sh
+ExecStop=/bin/kill -SIGTERM $MAINPID
+Restart=on-failure
+RestartSec=10
+StandardOutput=append:/home/pi/opencv_ws/opencv_detection_project/logs/service.log
+StandardError=append:/home/pi/opencv_ws/opencv_detection_project/logs/service_error.log
+
+# Give the service time to start
+TimeoutStartSec=60
+
+# Environment
+Environment=PYTHONUNBUFFERED=1
+Environment=HOME=/home/pi
+
+# Resource limits
+Nice=10
+CPUQuota=80%
+
+[Install]
+WantedBy=multi-user.target

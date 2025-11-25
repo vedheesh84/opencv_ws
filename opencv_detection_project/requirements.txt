@@ -5,11 +5,18 @@
 # opencv-python>=4.8.0
 # numpy>=1.24.0
 
+# Serial communication for Arduino
+pyserial>=3.5
+
 # IMPORTANT: On Ubuntu 22.04, install these via APT, not pip:
 # sudo apt update
 # sudo apt install -y python3-picamera2
 # sudo apt install -y python3-libcamera python3-kms++
 # sudo apt install -y python3-opencv python3-numpy
+#
+# Install pyserial:
+# pip3 install pyserial
 
-# Verify picamera2 installation:
-# python3 -c "from picamera2 import Picamera2; print('Success!')"
+# Verify installations:
+# python3 -c "from picamera2 import Picamera2; print('picamera2 OK')"
+# python3 -c "import serial; print('pyserial OK')"
