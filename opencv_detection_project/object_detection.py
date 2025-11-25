@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Haar Cascade Object Detection using OpenCV VideoCapture
-Works on Ubuntu 22.04 without picamera dependencies
+For Raspberry Pi with CSI Camera (V4L2 backend)
 """
 
 import cv2
@@ -115,18 +115,25 @@ class MultiObjectDetector:
 def main():
     """Main function"""
     print("Initializing Object Detection System...")
+    print(f"Camera index: {config.CAMERA_INDEX}")
     print(f"Resolution: {config.CAMERA_RESOLUTION}")
 
     # Initialize camera
     cap = cv2.VideoCapture(config.CAMERA_INDEX)
 
     if not cap.isOpened():
-        print("ERROR: Could not open camera!")
+        print("Failed to open camera!")
         return
 
+    # Set resolution
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, config.CAMERA_RESOLUTION[0])
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, config.CAMERA_RESOLUTION[1])
     cap.set(cv2.CAP_PROP_FPS, config.CAMERA_FPS)
+
+    print("Camera started")
+
+    # Give camera time to adjust
+    time.sleep(2)
 
     # Initialize detector
     try:
@@ -144,10 +151,11 @@ def main():
 
     try:
         while True:
+            # Capture frame
             ret, frame = cap.read()
 
             if not ret:
-                print("ERROR: Failed to capture frame")
+                print("Failed to capture frame")
                 break
 
             # Detect objects

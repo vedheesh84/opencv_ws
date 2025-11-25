@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
 Combined Object and Color Detection using OpenCV VideoCapture
-Works on Ubuntu 22.04 without picamera dependencies
+For Raspberry Pi with CSI Camera (V4L2 backend)
 """
 
 import cv2
 import numpy as np
 import time
 import config
-from object_detection_opencv import MultiObjectDetector
-from color_detection_opencv import ColorDetector
+from object_detection import MultiObjectDetector
+from color_detection import ColorDetector
 
 class CombinedDetector:
     """Combined detector for objects and colors"""
@@ -90,20 +90,27 @@ class CombinedDetector:
 def main():
     """Main function"""
     print("="*50)
-    print("Combined Detection (OpenCV)")
+    print("Combined Detection (OpenCV VideoCapture)")
     print("="*50)
+    print(f"Camera index: {config.CAMERA_INDEX}")
     print(f"Resolution: {config.CAMERA_RESOLUTION}")
 
     # Initialize camera
     cap = cv2.VideoCapture(config.CAMERA_INDEX)
 
     if not cap.isOpened():
-        print("ERROR: Could not open camera!")
+        print("Failed to open camera!")
         return
 
+    # Set resolution
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, config.CAMERA_RESOLUTION[0])
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, config.CAMERA_RESOLUTION[1])
     cap.set(cv2.CAP_PROP_FPS, config.CAMERA_FPS)
+
+    print("Camera started")
+
+    # Give camera time to adjust
+    time.sleep(2)
 
     # Initialize detector
     detector = CombinedDetector(cascade_types=['face', 'eye'])
@@ -118,10 +125,11 @@ def main():
 
     try:
         while True:
+            # Capture frame
             ret, frame = cap.read()
 
             if not ret:
-                print("ERROR: Failed to capture frame")
+                print("Failed to capture frame")
                 break
 
             # Run detections

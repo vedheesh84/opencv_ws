@@ -1,13 +1,13 @@
 """
 Configuration file for OpenCV object detection and color identification
-Using standard OpenCV VideoCapture (works on any Linux system)
+Using OpenCV VideoCapture for Raspberry Pi Camera (V4L2 backend)
 """
 
 # Camera Settings
-CAMERA_INDEX = 0  # Usually 0 for /dev/video0, try 1, 2... if not working
+CAMERA_INDEX = 0  # Camera device index (0 for /dev/video0)
 CAMERA_RESOLUTION = (640, 480)  # (width, height)
-CAMERA_FPS = 10
-CAMERA_ROTATION = 0  # Not used with VideoCapture, rotate manually if needed
+CAMERA_FPS = 30
+CAMERA_ROTATION = 0  # 0, 90, 180, or 270 degrees
 
 # Haar Cascade Settings
 HAAR_CASCADE_PATHS = {

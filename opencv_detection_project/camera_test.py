@@ -1,44 +1,40 @@
 #!/usr/bin/env python3
 """
-Camera Test Script using OpenCV VideoCapture (V4L2)
-Works on Ubuntu 22.04 without picamera/picamera2
+Camera Test Script using OpenCV VideoCapture
+For Raspberry Pi with CSI Camera (V4L2 backend)
 """
 
 import cv2
 import numpy as np
 import time
-
-# Configuration
-CAMERA_RESOLUTION = (640, 480)
-CAMERA_INDEX = 0  # Usually 0 for /dev/video0
+import config
 
 def test_camera():
-    """Test camera capture using OpenCV VideoCapture"""
+    """Test camera capture using OpenCV"""
     print("Initializing camera with OpenCV VideoCapture...")
-    print(f"Resolution: {CAMERA_RESOLUTION}")
-    print(f"Camera index: {CAMERA_INDEX}")
+    print(f"Camera index: {config.CAMERA_INDEX}")
+    print(f"Resolution: {config.CAMERA_RESOLUTION}")
 
     # Initialize camera
-    cap = cv2.VideoCapture(CAMERA_INDEX, cv2.CAP_V4L2)
+    cap = cv2.VideoCapture(config.CAMERA_INDEX)
 
     if not cap.isOpened():
-        print("ERROR: Could not open camera!")
-        print("\nTroubleshooting:")
-        print("1. Check camera connection")
-        print("2. Check available video devices:")
-        print("   ls /dev/video*")
-        print("3. Try different camera index (0, 1, 2...)")
+        print("Failed to open camera!")
         return
 
-    # Set camera properties
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_RESOLUTION[0])
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_RESOLUTION[1])
-    cap.set(cv2.CAP_PROP_FPS, 30)
+    # Set resolution
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, config.CAMERA_RESOLUTION[0])
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, config.CAMERA_RESOLUTION[1])
+    cap.set(cv2.CAP_PROP_FPS, config.CAMERA_FPS)
 
-    # Get actual resolution
+    # Verify settings
     actual_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     actual_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    actual_fps = cap.get(cv2.CAP_PROP_FPS)
     print(f"Actual resolution: {actual_width}x{actual_height}")
+    print(f"Actual FPS: {actual_fps}")
+
+    print("Camera started!")
 
     # Warm up camera
     print("Warming up camera for 2 seconds...")
@@ -53,11 +49,11 @@ def test_camera():
 
     try:
         while True:
-            # Read frame
+            # Capture frame
             ret, frame = cap.read()
 
             if not ret:
-                print("ERROR: Failed to capture frame")
+                print("Failed to capture frame")
                 break
 
             # Calculate FPS
@@ -105,6 +101,6 @@ def test_camera():
 
 if __name__ == "__main__":
     print("="*50)
-    print("Raspberry Pi Camera Test (OpenCV/V4L2)")
+    print("Raspberry Pi Camera Test (OpenCV VideoCapture)")
     print("="*50)
     test_camera()
